@@ -96,7 +96,7 @@
           // first create some paths along an exponential function
           var exponentialPath = function(p) {
             var path = [];
-            for (var i = -10, i < 10; ++i) {
+            for (var i = -10; i < 10; ++i) {
               path.push(new BABYLON.Vector3(p, i,
                               Math.sin(p / 3) * 5 *
                               Math.exp(-(i - p) * (i - p) / 60) + i / 3)
@@ -115,6 +115,14 @@
           var ribbon = BABYLON.Mesh.CreateRibbon('ribbon',
                          arrayOfPaths, false, false, 0, scene);
 
+          // reposition elements away from the origin
+          box.position = new BABYLON.Vector3(-10, 0, 0);
+          sphere.position = new BABYLON.Vector3(0, 10, 0);
+          plane.position.z = 10;
+          cylinder.position.z = 10;
+          torus.position.x = 10;
+          knot.position.y = -10;
+          ribbon.position = new BABYLON.Vector3(-10, -10, 20);
 
           // return the created scene
           return scene;
