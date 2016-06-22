@@ -2,10 +2,10 @@
   Title: index.html
   Summary: babylon.js driver html file for tutorials and the bjs_test video
   Owner: Zachary Fout
-  Version: 0.0.1
+  Version: 0.1.0
   Created: 06/20/2016
-  Last Modified: 06/21/2016
-  Notes: completed basic scene tutorial
+  Last Modified: 06/22/2016
+  Notes: recreated torus, added animation to transition between blue and green
 -->
 <!DOCTYPE html>
 <html>
@@ -42,34 +42,64 @@
         var engine = new BABYLON.Engine(canvas, true);
 
         // create and return a babylon scene
-        var createScene = function() {
-          // create a basic BJS Scene object
-          var scene = new BABYLON.Scene(engine);
+        var createScene = function () {
+	        var scene = new BABYLON.Scene(engine);
 
-          // create a FreeCamera, and set its position to (x:0, y:5, z:-10)
-          var camera = new BABYLON.FreeCamera('camera1', new BABYLON.Vector3(0, 5, -10), scene);
+          //Create a light
+          var light = new BABYLON.HemisphericLight("Hemi", new BABYLON.Vector3(0, 1, 0), scene);
 
-          // target the camera to the scene origin
-          camera.setTarget(BABYLON.Vector3.Zero());
+          //Create an Arc Rotate Camera - aimed negative z this time
+          var camera = new BABYLON.ArcRotateCamera("Camera", 0, 0.8, 20, BABYLON.Vector3.Zero(), scene);
+          camera.attachControl(canvas, true);
 
-          // attach the camera to the canvas
-          camera.attachControl(canvas, false);
+          var torus = BABYLON.Mesh.CreateTorus("torus", 5, 3, 20, scene, true);
+          var torusMaterial = new BABYLON.StandardMaterial("torusTexture", scene);
 
-          // create a basic light, aiming at (0, 1, 0) - the sky
-          var light = new BABYLON.HemisphericLight('light1', new BABYLON.Vector3(0, 1, 0), scene);
+          var blueTorus = new BABYLON.Color3(0.008, 0, 0.729);
+          var turqoisTorus = new BABYLON.Color3(0.047, 0.518, 0.31);
+          var greenTorus = new BABYLON.Color3(0.075, 0.898, 0.035);
 
-          // create a built-in "sphere" shape; its constructor takes 5 params: name, width, depth, subdivisions, scene
-          var sphere = BABYLON.Mesh.CreateSphere('sphere1', 16, 2, scene);
+          torusMaterial.diffuseColor = blueTorus;
+          torus.material = torusMaterial;
 
-          // move the sphere upward 1/2 of its height
-          sphere.position.y = 1;
+          var torusColorAnimation = new BABYLON.Animation(
+        	  "torusColor", "material.diffuseColor", 30,
+        	  BABYLON.Animation.ANIMATIONTYPE_COLOR3,
+        	  BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
 
-          // create a built-in ground shape
-          var ground = BABYLON.Mesh.CreateGround('ground1', 6, 6, 2, scene);
+          var keys = [];
 
-          // return the created scene
+          keys.push({
+    	      frame: 0,
+            value: blueTorus
+          });
+
+          keys.push({
+    	      frame: 50,
+            value: turqoisTorus
+          });
+
+          keys.push({
+            frame: 100,
+            value: greenTorus
+          });
+
+          keys.push({
+            frame: 150,
+            value: turqoisTorus
+          });
+
+          keys.push({
+            frame: 200,
+            value: blueTorus
+          });
+
+          torusColorAnimation.setKeys(keys);
+          torus.animations.push(torusColorAnimation);
+          scene.beginAnimation(torus, 0, 200, true);
+
           return scene;
-        }
+        };
 
         // call the createScene function
         var scene = createScene();
