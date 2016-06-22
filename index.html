@@ -46,26 +46,20 @@
           // create a basic BJS Scene object
           var scene = new BABYLON.Scene(engine);
 
-          // create a FreeCamera, and set its position to (x:0, y:5, z:-10)
-          var camera = new BABYLON.FreeCamera('camera1', new BABYLON.Vector3(0, 5, -10), scene);
+          // create an ArcRotateCamera with rotation angles of 3pi/2 -> x,
+          // pi/8 -> y, radius 50 units, centered at the origin
+          var camera = new BABYLON.ArcRotateCamera('camera1', 3 * Math.PI / 2,
+                             Math.PI / 8, 50, BABYLON.Vector3.Zero(), scene);
 
-          // target the camera to the scene origin
-          camera.setTarget(BABYLON.Vector3.Zero());
+          // attach the camera to the canvas element
+          camera.attachControl(canvas, true);
 
-          // attach the camera to the canvas
-          camera.attachControl(canvas, false);
+          // create a hemispheric light pointed at the sky
+          var light = new BABYLON.HemisphericLight('hemi1',
+                            new BABYLON.Vector3(0, 1, 0), scene);
 
-          // create a basic light, aiming at (0, 1, 0) - the sky
-          var light = new BABYLON.HemisphericLight('light1', new BABYLON.Vector3(0, 1, 0), scene);
-
-          // create a built-in "sphere" shape; its constructor takes 5 params: name, width, depth, subdivisions, scene
-          var sphere = BABYLON.Mesh.CreateSphere('sphere1', 16, 2, scene);
-
-          // move the sphere upward 1/2 of its height
-          sphere.position.y = 1;
-
-          // create a built-in ground shape
-          var ground = BABYLON.Mesh.CreateGround('ground1', 6, 6, 2, scene);
+          // create a basic box (name, size, scene)
+          var box = BABYLON.Mesh.CreateBox('box1', 6.0, scene);
 
           // return the created scene
           return scene;
