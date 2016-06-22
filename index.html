@@ -58,22 +58,27 @@
           var light = new BABYLON.HemisphericLight('hemi',
                             new BABYLON.Vector3(0, 1, 0), scene);
 
-          // create a basic box (name, size, scene)
-          var box = BABYLON.Mesh.CreateBox('box', 6.0, scene);
+          // create a basic box (name, size, scene, updatable, orientation)
+          var box = BABYLON.Mesh.CreateBox('box', 6.0, scene,
+                      false, BABYLON.Mesh.DOUBLESIDE);
 
-          // create a sphere (name, # of segments, diameter, scene)
-          var sphere = BABYLON.Mesh.CreateSphere('sphere', 10.0, 10.0, scene);
+          // create a sphere (name, # of segments, diameter, scene, updatable, orientation)
+          var sphere = BABYLON.Mesh.CreateSphere('sphere', 10.0, 10.0, scene,
+                         false, BABYLON.Mesh.DOUBLESIDE);
 
-          // create a basic plane (name, size, scene)
-          var plane = BABYLON.Mesh.CreatePlane('plane', 10.0, scene);
+          // create a basic plane (name, size, scene, updatable, orientation)
+          var plane = BABYLON.Mesh.CreatePlane('plane', 10.0, scene,
+                        false, BABYLON.Mesh.DOUBLESIDE);
 
-          // create a disc (name, radius, tessellation, scene)
-          var disc = BABYLON.Mesh.CreateDisc('disc', 5, 30, scene);
+          // create a disc (name, radius, tessellation, scene,
+          // updatable, orientation)
+          var disc = BABYLON.Mesh.CreateDisc('disc', 5, 30, scene,
+                       false, BABYLON.Mesh.DOUBLESIDE);
 
           // create a cylinder (name, height, diamTop, diamBottom,
-          // tessellation, height subdivisions, scene, updatable)
+          // tessellation, height subdivisions, scene, updatable, orientation)
           var cylinder = BABYLON.Mesh.CreateCylinder('cylinder', 3, 3, 3, 6,
-                           1, scene, false);
+                           1, scene, false, BABYLON.Mesh.DOUBLESIDE);
 
           // create a torus (name, diameter, thickness,
           // tessellation, scene, updatable)
@@ -111,9 +116,10 @@
           }
 
           // create the ribbon (name, paths, closeArray,
-          // closePath, offset, scene)
+          // closePath, offset, scene, updatable, orientation)
           var ribbon = BABYLON.Mesh.CreateRibbon('ribbon',
-                         arrayOfPaths, false, false, 0, scene);
+                         arrayOfPaths, false, false, 0, scene,
+                         false, BABYLON.Mesh.DOUBLESIDE);
 
           // reposition elements away from the origin
           box.position = new BABYLON.Vector3(-10, 0, 0);
