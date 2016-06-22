@@ -42,34 +42,64 @@
         var engine = new BABYLON.Engine(canvas, true);
 
         // create and return a babylon scene
-        var createScene = function() {
-          // create a basic BJS Scene object
+        var createScene = function () {
           var scene = new BABYLON.Scene(engine);
 
-          // create a FreeCamera, and set its position to (x:0, y:5, z:-10)
-          var camera = new BABYLON.FreeCamera('camera1', new BABYLON.Vector3(0, 5, -10), scene);
+	        scene.enablePhysics(new BABYLON.Vector3(0, -10, 0), BABYLON.OimoJSPlugin());
 
-          // target the camera to the scene origin
-          camera.setTarget(BABYLON.Vector3.Zero());
+          // Lights
+	        // var light = new BABYLON.HemisphericLight("hemi", new BABYLON.Vector3(0, 1, 0), scene);
+          var light0 = new BABYLON.DirectionalLight("Omni", new BABYLON.Vector3(-2, -5, 2), scene);
+          //var light1 = new BABYLON.PointLight("Omni", new BABYLON.Vector3(2, -5, -2), scene);
 
-          // attach the camera to the canvas
-          camera.attachControl(canvas, false);
+	        // camera directly above ground
+	        /* var camera = new BABYLON.FreeCamera("FreeCamera", new BABYLON.Vector3(0, 200, 0), scene);
+	        camera.rotation = new BABYLON.Vector3(Math.PI / 2, 0, 0);
+          camera.attachControl(canvas, true); */
 
-          // create a basic light, aiming at (0, 1, 0) - the sky
-          var light = new BABYLON.HemisphericLight('light1', new BABYLON.Vector3(0, 1, 0), scene);
+          // final camera position
+          var camera = new BABYLON.FreeCamera("FreeCamera", new BABYLON.Vector3(0, 100, -300), scene);
+	        camera.rotation = new BABYLON.Vector3(.4, 0, 0);
+          camera.attachControl(canvas, true);
 
-          // create a built-in "sphere" shape; its constructor takes 5 params: name, width, depth, subdivisions, scene
-          var sphere = BABYLON.Mesh.CreateSphere('sphere1', 16, 2, scene);
+	        // Ground
+	        var ground = BABYLON.Mesh.CreatePlane("ground", 120.0, scene);
+	        ground.material = new BABYLON.StandardMaterial("groundMat", scene);
+	        ground.material.diffuseColor = new BABYLON.Color3(0.7, 0.7, 0.7);
+	        ground.material.backFaceCulling = false;
+	        ground.rotation = new BABYLON.Vector3(Math.PI / 2, 0, 0);
+	        ground.setPhysicsState(BABYLON.PhysicsEngine.BoxImpostor, { mass: 0, friction: 0.5, restitution: 0.7 });
+	        ground.updatePhysicsBodyPosition();
+	        // ground.rotation = new BABYLON.Vector3(Math.PI / 2, -Math.PI / 32, 0);
 
-          // move the sphere upward 1/2 of its height
-          sphere.position.y = 1;
+	        // center sphere
+	        var sphere = BABYLON.Mesh.CreateSphere("sphere", 20.0, 15.0, scene, true);
+	        sphere.position.y = 10;
 
-          // create a built-in ground shape
-          var ground = BABYLON.Mesh.CreateGround('ground1', 6, 6, 2, scene);
+	        var boxes = [];
 
-          // return the created scene
+	        for (var i = 0; i < 12; ++i) {
+		        var box = BABYLON.Mesh.CreateBox("box" + i, 10, scene);
+		        box.material = new BABYLON.StandardMaterial("box" + i + "Mat", scene);
+		        box.material.diffuseColor = new BABYLON.Color3(1, 0, 0);
+		        box.position = new BABYLON.Vector3(40 * Math.cos(i * Math.PI / 6), 80, 40 * Math.sin(i * Math.PI / 6));
+		        box.setPhysicsState(BABYLON.PhysicsEngine.BoxImpostor, { mass: 1, friction: 0.5, restitution: 0.7 });
+		        boxes.push(box);
+          }
+
+	        // set the gravity for the scene
+	        scene.gravity = new BABYLON.Vector3(0, -0.981, 0);
+
+	        // Enable Collisions
+          scene.collisionsEnabled = true;
+
+	        for (var i = 0; i < boxes.length; ++i) {
+		        boxes[i].checkCollisions = true;
+	        }
+	        ground.checkCollisions = true;
+
           return scene;
-        }
+        };
 
         // call the createScene function
         var scene = createScene();
