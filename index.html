@@ -75,6 +75,14 @@
           var cylinder = BABYLON.Mesh.CreateCylinder('cylinder', 3, 3, 3, 6,
                            1, scene, false);
 
+          // create a torus (name, diameter, thickness,
+          // tessellation, scene, updatable)
+          var torus = BABYLON.Mesh.CreateTorus('torus', 5, 1, 10, scene, false);
+
+          // create a knot (name, radius, tube, radialSegments,
+          // tubularSegments, p, q, scene)
+          var knot = BABYLON.Mesh.CreateTorusKnot('knot', 2, 0.5, 128,
+                       64, 2, 3, scene)
 
           // return the created scene
           return scene;
