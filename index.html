@@ -44,59 +44,169 @@
         // create and return a babylon scene
         var createScene = function () {
           var scene = new BABYLON.Scene(engine);
+          scene.enablePhysics(new BABYLON.Vector3(0, -0.8, 0), BABYLON.OimoJSPlugin());
 
-	        scene.enablePhysics(new BABYLON.Vector3(0, -10, 0), BABYLON.OimoJSPlugin());
-
-          // Lights
-	        // var light = new BABYLON.HemisphericLight("hemi", new BABYLON.Vector3(0, 1, 0), scene);
-          var light0 = new BABYLON.DirectionalLight("Omni", new BABYLON.Vector3(-2, -5, 2), scene);
-          //var light1 = new BABYLON.PointLight("Omni", new BABYLON.Vector3(2, -5, -2), scene);
-
-	        // camera directly above ground
-	        /* var camera = new BABYLON.FreeCamera("FreeCamera", new BABYLON.Vector3(0, 200, 0), scene);
-	        camera.rotation = new BABYLON.Vector3(Math.PI / 2, 0, 0);
+          /* var camera = new BABYLON.ArcRotateCamera("ArcCamera", 1, 0.8, 10, new BABYLON.Vector3(0, 100, -400), scene);
+          camera.setTarget(BABYLON.Vector3.Zero());
           camera.attachControl(canvas, true); */
 
-          // final camera position
-          var camera = new BABYLON.FreeCamera("FreeCamera", new BABYLON.Vector3(0, 100, -300), scene);
-	        camera.rotation = new BABYLON.Vector3(.4, 0, 0);
+          var camera = new BABYLON.FreeCamera("FreeCamera", new BABYLON.Vector3(50, 100, 315), scene);
+            camera.rotation = new BABYLON.Vector3(0.3, Math.PI, 0);
+            camera.rotation.y = Math.PI + 0.2;
+          //camera.setTarget(BABYLON.Vector3.Zero());
           camera.attachControl(canvas, true);
 
-	        // Ground
-	        var ground = BABYLON.Mesh.CreatePlane("ground", 120.0, scene);
-	        ground.material = new BABYLON.StandardMaterial("groundMat", scene);
-	        ground.material.diffuseColor = new BABYLON.Color3(0.7, 0.7, 0.7);
-	        ground.material.backFaceCulling = false;
-	        ground.rotation = new BABYLON.Vector3(Math.PI / 2, 0, 0);
-	        ground.setPhysicsState(BABYLON.PhysicsEngine.BoxImpostor, { mass: 0, friction: 0.5, restitution: 0.7 });
-	        ground.updatePhysicsBodyPosition();
-	        // ground.rotation = new BABYLON.Vector3(Math.PI / 2, -Math.PI / 32, 0);
+          var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
+          light.intensity = 0.7;
 
-	        // center sphere
-	        var sphere = BABYLON.Mesh.CreateSphere("sphere", 20.0, 15.0, scene, true);
-	        sphere.position.y = 10;
+          var light1 = new BABYLON.DirectionalLight("dir01", new BABYLON.Vector3(200, -300, 300), scene);
 
-	        var boxes = [];
+          var lightSphere = BABYLON.Mesh.CreateSphere("lightSphere", 10, 10.0, scene, true);
+          lightSphere.position = light1.position;
+          lightSphere.material = new BABYLON.StandardMaterial("light", scene);
+          lightSphere.material.emmissiveColor = new BABYLON.Color3(1, 1, 0);
 
-	        for (var i = 0; i < 12; ++i) {
-		        var box = BABYLON.Mesh.CreateBox("box" + i, 10, scene);
-		        box.material = new BABYLON.StandardMaterial("box" + i + "Mat", scene);
-		        box.material.diffuseColor = new BABYLON.Color3(1, 0, 0);
-		        box.position = new BABYLON.Vector3(40 * Math.cos(i * Math.PI / 6), 80, 40 * Math.sin(i * Math.PI / 6));
-		        box.setPhysicsState(BABYLON.PhysicsEngine.BoxImpostor, { mass: 1, friction: 0.5, restitution: 0.7 });
-		        boxes.push(box);
+          var shadowGenerator = new BABYLON.ShadowGenerator(1024, light1);
+          shadowGenerator.getShadowMap().renderList.push(sphere);
+          shadowGenerator.useVarianceMap = true;
+
+          // Ground
+          var ground = BABYLON.Mesh.CreatePlane("ground", 150.0, scene);
+          ground.material = new BABYLON.StandardMaterial("groundMat", scene);
+          ground.material.diffuseColor = new BABYLON.Color3(0.7, 0.7, 0.7);
+          ground.material.backFaceCulling = false;
+          ground.rotation = new BABYLON.Vector3(Math.PI / 2, 0, 0);
+          ground.setPhysicsState(BABYLON.PhysicsEngine.BoxImpostor, { mass: 0, friction: 0.5, restitution: 0.1 });
+          ground.updatePhysicsBody();
+          ground.receiveShadows = true;
+          ground.isPickable = true;
+
+          var dragWall = BABYLON.Mesh.CreatePlane("drag", 150.0, scene);
+          dragWall.material = new BABYLON.StandardMaterial("dragMat", scene);
+          dragWall.material.diffuseColor = new BABYLON.Color3(0.7, 0.7, 0.7);
+          dragWall.position = new BABYLON.Vector3(0, 75, 75);
+          dragWall.material.frontFaceCulling = true;
+          //dragWall.material.backFaceCulling = false;
+
+          var boxes = [];
+
+          for (var i = 0; i < 12; ++i) {
+            var box = BABYLON.Mesh.CreateBox("box" + i, 10, scene);
+            box.material = new BABYLON.StandardMaterial("box" + i + "Mat", scene);
+            box.material.diffuseColor = new BABYLON.Color3(1, 0, 0);
+            box.position = new BABYLON.Vector3(60 * Math.cos(i * Math.PI / 6), 100, 60 * Math.sin(i * Math.PI / 6));
+            box.setPhysicsState(BABYLON.PhysicsEngine.BoxImpostor, { mass: 0, friction: 0.5, restitution: 0.001 });
+            //box.rotate(new BABYLON.Vector3(Math.PI / 4, 0, 0));
+            boxes.push(box);
           }
 
-	        // set the gravity for the scene
-	        scene.gravity = new BABYLON.Vector3(0, -0.981, 0);
+          // Enable Collisions
+          //scene.collisionsEnabled = true;
 
-	        // Enable Collisions
-          scene.collisionsEnabled = true;
+          //for (var i = 0; i < boxes.length; ++i) {
+            //	boxes[i].checkCollisions = true;
+          //}
 
-	        for (var i = 0; i < boxes.length; ++i) {
-		        boxes[i].checkCollisions = true;
-	        }
-	        ground.checkCollisions = true;
+          var sphere = BABYLON.Mesh.CreateSphere("sphere", 20.0, 15.0, scene, true);
+          //sphere.setPhysicsState(BABYLON.PhysicsEngine.SphereImpostor, { mass: 0, friction: 0.0, restitution: 0.0 });
+          //sphere.updatePhysicsBody();
+          sphere.position.y = 10;
+          sphere.material = new BABYLON.StandardMaterial("sphereTexture", scene);
+          sphere.material.diffuseColor = new BABYLON.Color3(1, 0, 0);
+          scene.beginAnimation(sphere, 0, 100, true);
+
+          var easingFunction = new BABYLON.SineEase();
+          easingFunction.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEIN);
+
+          var getPlanePosition = function () {
+            // Use a predicate to get position on the drag wall
+            var pickinfo = scene.pick(scene.pointerX, scene.pointerY, function (mesh) { return mesh == dragWall || mesh == ground; });
+            if (pickinfo.hit) {
+              return pickinfo.pickedPoint;
+            }
+            return null;
+          };
+
+          //scene.collisionsEnabled = true;
+          //sphere.checkCollisions = true;
+          //ground.checkCollisions = true;
+
+          var currentMesh;
+          var startingPoint;
+
+          var onPointerDown = function (e) {
+            if (e.button !== 0) { return; }
+
+            var pickInfo = scene.pick(scene.pointerX, scene.pointerY, function (mesh) { return mesh == sphere; });
+            if (pickInfo.hit) {
+              currentMesh = pickInfo.pickedMesh;
+              startingPoint = getPlanePosition();
+
+              if (startingPoint) {
+                setTimeout(function () {
+                  camera.detachControl(canvas);
+                }, 0);
+              }
+            }
+          };
+
+          var onPointerUp = function () {
+            if (startingPoint) {
+              camera.attachControl(canvas, true);
+              startingPoint = null;
+              return;
+            }
+          };
+
+          var onPointerMove = function (e) {
+            if (!startingPoint) { return; }
+
+            var current = getPlanePosition();
+
+            if (!current) { return; }
+
+            var pickInfo = scene.pickWithRay(new BABYLON.Ray(sphere.position, new BABYLON.Vector3(0, -1, 0)), function (mesh) { return mesh == ground; });
+            var groundDistance = current.y - pickInfo.pickedPoint.y;
+
+            if (groundDistance >= 0 && groundDistance < 50) {
+              sphere.material.diffuseColor = new BABYLON.Color3(0.8 - (groundDistance / 100.0), 0, 0.2 + (groundDistance / 100.0));
+              //console.log(sphere.material.diffuseColor);
+            } else if (groundDistance >= 50 && groundDistance < 100) {
+                sphere.material.diffuseColor = new BABYLON.Color3(0, 0.2 + (groundDistance / 100.0), 0.8 - (groundDistance / 100.0));
+                //console.log(sphere.material.diffuseColor);
+            } else if (groundDistance >= 100 && groundDistance <= 150) {
+                sphere.material.diffuseColor = new BABYLON.Color3(0.2 + (groundDistance / 150.0), 1.2 - (groundDistance / 150.0), 0);
+            }
+
+            var diff = current.subtract(startingPoint);
+
+            easingFunction.ease(diff.y);
+            currentMesh.position.addInPlace(diff);
+            currentMesh.position.x = 0;
+            currentMesh.position.z = 0;
+            startingPoint = current;
+          };
+
+          canvas.addEventListener("pointerdown", onPointerDown, false);
+          canvas.addEventListener("pointerup", onPointerUp, false);
+          canvas.addEventListener("pointermove", onPointerMove, false);
+
+          scene.onDispose = function () {
+            canvas.removeEventListener("pointerdown", onPointerDown);
+            canvas.removeEventListener("pointerup", onPointerUp);
+            canvas.removeEventListener("pointermove", onPointerMove);
+          };
+
+        	scene.registerBeforeRender(function () {
+        		//console.log(camera.position);
+        		for (var i = 0; i < boxes.length; ++i) {
+        			if (boxes[i].position.y > 10) {
+        				boxes[i].lookAt(sphere.position);
+        			} else {
+        				//boxes[i].applyImpulse(new BABYLON.Vector3(Math.random(), Math.random(), Math.random()), new BABYLON.Vector3(Math.random(), Math.random(), Math.random()));
+        			}
+        		}
+        	});
 
           return scene;
         };
