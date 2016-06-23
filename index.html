@@ -192,7 +192,7 @@
 
           // create the torus
         	var torus = BABYLON.Mesh.CreateTorus("torus", 8, 5, 20, scene, true);
-          var torusMaterial = new BABYLON.StandardMaterial("torusTexture", scene);
+          torus.material = new BABYLON.StandardMaterial("torusTexture", scene);
         	torus.position = new BABYLON.Vector3(45, 80, 280);
 
           // torus colors used in the animation sequence
